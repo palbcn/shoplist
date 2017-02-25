@@ -1,0 +1,173 @@
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;  margin:0;padding:0;
+}
+
+body{
+  margin:0;
+  background: white;
+  color: black; 
+  /* "A Better Helvetica" and "Helvetica Neue Alternatives" */
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "TeXGyreHeros", "Roboto", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300;
+  font-size: 16px;
+  min-width: 600px;
+}
+
+img { border:0; }
+
+header {
+  background: black;
+  color: #ccc;
+  min-height: 120px;
+  padding: 24px;
+}
+
+header nav {
+  position:absolute;
+  text-transform: uppercase;
+  font-size:.9rem; font-weight:normal;
+  top:12px; right:12px;
+  cursor: pointer;  
+}
+header nav span:hover, header nav i:hover  {
+  color:orange;
+}
+
+main {
+  max-width: 640px;
+  margin:24px auto;
+}
+
+label,input,textarea,button {
+  font-family: "Segoe UI","Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 24px;
+}
+
+input, textarea {
+  width: 600px;
+  margin: 12px;
+}
+
+input {
+  border-width: 0 0 1px 0;
+}
+
+input:hover {
+  border-color:black;
+}
+
+button { 
+  margin: 12px;
+};
+
+.item-list {
+  width: 400px;
+}
+
+.item {
+  position:relative;
+  width:100%;
+  height: 64px;
+  background-color: #efe;
+}
+
+.item.completed {
+  background-color: #fee;
+}
+
+.item:hover{
+  background-color: #eee;
+}
+
+.item .timestamp {
+  font-size:60%;
+  position:absolute;
+  right: 64px;
+}
+
+.item .timestamp.added {
+  top:6px;
+}
+
+.item .timestamp.completed {
+  top:18px;
+}
+
+.item .index {
+  position: absolute;
+  right: 64px;
+  bottom: 0;
+}
+
+.item .element {
+  font-size: 2rem;
+}
+
+.item .icon-remove {
+   position:absolute; 
+   color: #999; 
+   height:28px; width:28px;
+   padding:6px;
+   text-align: center;
+   vertical-align: middle;
+}
+
+.item .icon-remove:hover {
+   color: red;    
+   background-color: #eee;       
+}
+
+.item .icon-remove {
+  right:0px;
+  top:0px;
+}
+
+.icon-remove:before {
+  /* fa-trash \f1f8 or fa-ban \f05e or fa-times \f00d or ... ??? */
+  content: "\f00d";
+}
+
+.item .icon-complete {
+   position:absolute; 
+   color: #999; 
+   height:28px; width:28px;
+   padding:6px;
+   text-align: center;
+   vertical-align: middle;
+}
+
+.item .icon-complete:hover {
+   color: green;    
+   background-color: #eee;       
+}
+
+.item .icon-complete {
+  right:32px;
+  top:0px;
+}
+
+.icon-complete:before {
+  /* fa-check \f00c or ... ??? */
+  content: "\f00c";
+}
+
+#item-entry { 
+  background-color: #eee;
+  display: none;
+}
+
+#item-entry:after{
+  content: "";
+  display: table;
+  clear: both;
+}
+
+header #logo { 
+  float: left; 
+  height: 64px; 
+  padding-right:24px 
+} 

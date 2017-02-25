@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Shopping List</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
+</head>
+
+<body>
+<header>
+<img id="logo" src="logo.png"></img>
+<p>La pera limonera</p>
+<p class="small">Creative Programming</p>
+<h1>The Shopping List</h1>
+<nav><span id="user-name">Login</span>&nbsp; &nbsp;<i id="settings" class="fa fa-gear fa-lg"></i></nav>
+</header>
+
+<main>
+<div id="item-entry">
+<h1>Item to shop</h1>
+<input id="item-name" placeholder="item to add"></input><br/>
+<input id="item-where" placeholder="where to buy it"></input><br/>
+<textarea id="item-notes" placeholder="add some notes"></textarea><br/>
+<button id="item-add-item">Add item <i class="fa fa-plus" style="color:green"></i></button>
+</div>
+
+<h1 id="shop-list-name">Shop List</h1>
+<button id="add-item"><i class="fa fa-plus" style="color:green"></i></button>
+<div id="shop-list"></div>
+</main>
+
+</body>
+
+<script src="vendor/jquery/dist/jquery.min.js"></script>
+<script src="client.js"></script>
+</html>
