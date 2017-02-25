@@ -7,6 +7,15 @@ function getShoplist(cb) {
    })
 }
 
+function itemComplete(id){
+  $.ajax({ 
+    type: "PUT",
+    url:"/shoplist/"+id.slice(5),
+    dataType: "json",
+    success:renderShoplist
+  })
+}
+
 function itemDelete(id){
   $.ajax({ 
     type: "DELETE",
@@ -21,13 +30,13 @@ function renderItem(item) {
   $item.append($('<p class="index">')
     .text(item.id));
   $item.append($('<p class="timestamp added">')
-    .text(new Date(item.added_at).toLocaleString('en-GB').slice(0,-3)));          
+    .text(new Date(item.created_at).toLocaleString('en-GB').slice(0,-3)));          
   $item.append($('<p class="element">')
     .text(item.name));
 
   var $iconcomplete=$('<i title="complete" class="fa icon-complete"/>').hide() 
   $item.append($iconcomplete);
-  $iconcomplete.click(function(){itemDelete($(this).parent()[0].id)});
+  $iconcomplete.click(function(){itemComplete($(this).parent()[0].id)});
   $item.hover(()=>$iconcomplete.show(),()=>$iconcomplete.hide());
   
   var $iconremove=$('<i title="remove" class="fa icon-remove"/>').hide() 
@@ -45,8 +54,7 @@ function renderItem(item) {
 
 function renderShoplist (list) {
   $("#shop-list").empty();
-  list.map( (item,index) => { 
-    item.id=index; 
+  list.map( (item) => { 
     $("#shop-list").append(renderItem(item)) 
   });
 }
@@ -60,10 +68,14 @@ $(function(){
       where: $("#item-where").val(),
       notes: $("#item-notes").val() };
     $.post( '/shoplist', item, renderShoplist);
+    $("#item-entry").hide("slow");
+  });
+  $("#item-cancel").on('click',()=>{
+    $("#item-entry").hide("slow");
   });
   
-  $("#item-add-item").on('click',()=>{
-     $("#item-entry").show();
+  $("#list-add-item").on('click',()=>{
+     $("#item-entry").show("slow");
   });
   
   $("#user-name").on('click',()=> (user)?userInfo():login());

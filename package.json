@@ -8,5 +8,11 @@
     "start": "node server"
   },
   "author": "La pera limonera <palbcn@yahoo.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "~1.16.1",
+    "browser-sync": "~2.18.8",
+    "express": "~4.14.1",
+    "morgan": "~1.8.1"
+  }
 }

@@ -10,8 +10,9 @@ by Pere Albert, Barcelona. <palbcn@yahoo.com>
 var express = require('express');
 var router = express.Router();
 
-var testShopList=[{name:'bread',added_at:1480000000000,added_by:'admin'},
-            {name:'butter',added_at:1487000000000,added_by:'admin',completed_at:1487970000000,completed_by:'user'}];
+var sqlite3 = require('sqlite3').verbose();
+var db = new sqlite3.Database('./data/shoplist.db');
+
 
 function sortShopList(list) { 
   function comparer(a,b) { 
@@ -24,38 +25,62 @@ function sortShopList(list) {
   return list;
 }
 
-router.get('/', function (req, res) {
-  res.send(testShopList);
+router.get('/', function (req, res, next) {
+  db.all('SELECT * FROM shopitems', function(err, rows) {
+    if (err) return next(err);
+    res.json( sortShopList(rows) ); // see stackoverflow.com/questions/19041837/difference-between-res-send-and-res-json-in-express-js
+  });
+
 });
 
-router.post('/', function (req, res) {
+router.post('/', function (req, res,next) {
   var item = {
     name: req.body.name,
-    where: req.body.where,
-    added_by: req.body.user,
-
-    added_at: Date.now(),
-    completed_at: null,
-    completed_by: null,
+    //where: req.body.where,
+    //added_by: req.body.user,
+    //added_at: Date.now(),
+    //completed_at: null,
+    //completed_by: null,
     notes: req.body.notes
   };
-  testShopList.push(item);
-  res.send(sortShopList(testShopList)); 
+  db.run("INSERT INTO shopitems (name,created_at,notes) VALUES (?,?,?)",[item.name,Date.now(),item.notes], function(err) {
+    if(err) return next(err);
+    db.all('SELECT * FROM shopitems', function(err, rows) {
+      res.json( sortShopList(rows) ); 
+    });
+  })
 });
 
-router.delete('/:id',function(req,res) {
-  var item=testShopList[req.params.id];
-  if (item) {
-    item.completed_at=Date.now();
-    item.completed_by=req.body.user;
-    res.send(sortShopList(testShopList)); 
-
-  } else {
-    res.send(404,'item '+req.params.id+' not found');
-  }  
+router.delete('/:id',function(req,res,next) {
+  db.run("DELETE FROM shopitems WHERE id=?",[req.params.id], function(err) {
+    if(err) return next(err);
+    db.all('SELECT * FROM shopitems', function(err, rows) {
+      res.json( sortShopList(rows) ); 
+    });
+  });
 });
 
+router.put('/:id',function(req,res,next) {
+  db.run("UPDATE shopitems SET completed_at=? WHERE id=?",[Date.now(),req.params.id], function(err) {
+    if(err) return next(err);
+    db.all('SELECT * FROM shopitems', function(err, rows) {
+      res.json( sortShopList(rows) ); 
+    });
+  });
+});
 
+// Database initialization  
+db.run(`CREATE TABLE IF NOT EXISTS shopitems  
+        (  id INTEGER PRIMARY KEY AUTOINCREMENT, 
+           list INTEGER, 
+           name TEXT, 
+           created_at TIMESTAMP NOT NULL DEFAULT current_timestamp, 
+           created_by INTEGER, 
+           completed_at TIMESTAMP, 
+           completed_by INTEGER, 
+           shop_where TEXT, 
+           notes TEXT
+        )`);
 
 if (module.parent) {
   module.exports = router;
