@@ -5,14 +5,21 @@
      git clone https://github.com/palbcn/shoplist.git
      npm install
      npm run first
-     
-     node server
+   
+## running
+   
+     npm start
+     open http://localhost:60784
      
      
 ## Components
 
-uses node.js on the server and plain jquery on the client
+uses node.js on the server 
+
+uses plain jquery on the client
+
 uses sqlite as backend DB 
+
 
 ## data model 
 
