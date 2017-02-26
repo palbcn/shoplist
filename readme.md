@@ -3,6 +3,7 @@
 ## installing
 
      git clone https://github.com/palbcn/shoplist.git
+     cd shoplist
      npm install
      npm run first
    
