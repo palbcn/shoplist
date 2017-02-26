@@ -2,7 +2,7 @@
 function getShoplist(cb) {
    $.ajax({
      dataType: "json",
-     url: '/shoplist',
+     url: '/shoplist/1',
      success: cb
    })
 }
