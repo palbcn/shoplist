@@ -4,7 +4,8 @@
   "description": "Shopping list",
   "main": "server.js",
   "scripts": {
-    "first": "md data && cd client && bower install",
+    "preinstall": "mkdir data",
+    "postinstall": "cd client && bower install && cd ..",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server"
   },
