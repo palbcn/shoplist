@@ -52,12 +52,20 @@ input, textarea {
   margin: 12px;
 }
 
+button { 
+  padding: 0 12px; 
+}
+
 input {
   border-width: 0 0 1px 0;
 }
 
 input:hover {
   border-color:black;
+}
+
+input.error {
+  background-color:#fee;  
 }
 
 button { 
@@ -68,7 +76,7 @@ button {
   width: 400px;
 }
 
-.item {
+.item, .listdesc {
   position:relative;
   width:100%;
   height: 64px;
@@ -78,19 +86,20 @@ button {
 
 .item.completed {
   background-color: #fee;
+  text-decoration: line-through;
 }
 
-.item:hover{
+.item:hover, .listdesc:hover {
   background-color: #eee;
 }
 
-.item .timestamp {
+.item .timestamp, .listdesc .timestamp {
   font-size:60%;
   position:absolute;
-  right: 64px;
+  right: 0;
 }
 
-.item .timestamp.added {
+.item .timestamp.added, .listdesc .timestamp.created {
   top:6px;
 }
 
@@ -98,75 +107,94 @@ button {
   top:18px;
 }
 
-.item .index {
+.item .index, .listdesc .index {
   position: absolute;
-  right: 64px;
-  bottom: 0;
+  right: 0px;
+  top: 0;
 }
-
-.item .element {
+.item .element, .listdesc .name {
   font-size: 2rem;
 }
+.item .comments {
+  font-size: 80%;
+  color: #666;
+}
 
-.item .icon-remove {
+/*-----------------------------------------------------*/
+.item .icon-complete, .item .icon-remove, .listdesc .icon-select, .listdesc .icon-remove {
    position:absolute; 
    color: #999; 
-   height:28px; width:28px;
    padding:6px;
    text-align: center;
    vertical-align: middle;
 }
 
+/*-----------------------------------------------------*/
 .item .icon-remove:hover {
-   color: red;    
-   background-color: #eee;       
+   color: red;       
 }
-
 .item .icon-remove {
   right:0px;
   top:0px;
 }
-
 .icon-remove:before {
   /* fa-trash \f1f8 or fa-ban \f05e or fa-times \f00d or ... ??? */
   content: "\f00d";
 }
-
-.item .icon-complete {
-   position:absolute; 
-   color: #999; 
-   height:28px; width:28px;
-   padding:6px;
-   text-align: center;
-   vertical-align: middle;
-}
-
+/*-----------------------------------------------------*/
 .item .icon-complete:hover {
-   color: green;    
-   background-color: #eee;       
+   color: green;         
 }
-
 .item .icon-complete {
-  right:32px;
+  right:48px;
   top:0px;
 }
-
 .icon-complete:before {
   /* fa-check \f00c or ... ??? */
   content: "\f00c";
 }
 
-#item-entry { 
-  background-color: #eee;
+/*-----------------------------------------------------*/
+.listdesc .icon-select:hover {
+   color: green;         
+}
+.listdesc .icon-select {
+  right:48px;
+  top:0px;
+}
+.icon-select:before {
+  /* fa-arrow-right \f061 or ... ??? */
+  content: "\f061";
+}
+
+/*-----------------------------------------------------*/
+.listdesc .icon-remove:hover {
+   color: red;         
+}
+.listdesc .icon-remove {
+  right:0px;
+  top:0px;
+}
+
+
+/*-----------------------------------------------------*/
+#user-signup-form, #user-login-form, #item-entry, #list-entry, #shoplist, #shoplists { 
   display: none;
 }
 
-#item-entry:after{
+/*-----------------------------------------------------*/
+#user-signup-form, #user-login-form, #item-entry,  #list-entry { 
+  background-color: #eee;
+}
+
+/*-----------------------------------------------------*/
+#item-entry:after,  #list-entry:after {
   content: "";
   display: table;
   clear: both;
 }
 
+/*-----------------------------------------------------*/
 header #logo { 
   float: left; 
   height: 64px; 
