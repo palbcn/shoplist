@@ -41,6 +41,36 @@ router.post('/lists', function (req,res,next) {
   });
 });
 
+router.delete('/lists', function (req,res,next) {
+  checklistuser(req.body.list_id,req.session.user.id,function(err){
+    if (err) return res.sendStatus(401);
+    db.run('BEGIN TRANSACTION',function(err) {
+      if(err) return next(err);
+      db.get('SELECT COUNT(*) num FROM shopitems WHERE list_id=?',[req.body.list_id], function(err,row) {
+        if(err) return next(err);
+        if (row.num!=0) {
+          db.run('ROLLBACK');
+          return res.status(409).json({error:'list is not empty, contains '+row.num+' items.'});
+        }
+        db.run('DELETE FROM listusers WHERE list_id=?',[req.body.list_id], function(err) {
+          if(err) {
+            db.run('ROLLBACK');  
+            return next(err);
+          }
+          db.run('DELETE FROM lists WHERE id=?',[req.body.list_id], function(err) {
+            if(err) {
+              db.run('ROLLBACK');  
+              return next(err);
+            }
+            db.run('COMMIT');
+            res.sendStatus(200);        
+          });
+        });      
+      });
+    });
+  });
+});
+
 /******************************************************************************/
 function sortShopList(list) { 
   function comparer(a,b) { 
@@ -62,6 +92,7 @@ function sendListPrim(listid,res) {
 function checklistuser(listid,userid,cb) {
   console.log('listuser',listid,userid);
   db.get('SELECT * FROM listusers WHERE user_id=? AND list_id=?',[userid,listid],function(err, row) {
+    console.log(err,row);
     if (err||!row) return cb(401);
     cb(null);
   });

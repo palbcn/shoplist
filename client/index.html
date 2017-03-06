@@ -22,50 +22,59 @@
 </nav>
 </header>
 
-<main>
-<div id="user-signup-form">
+<main role="application">
+
+<section id="login">
+<h1>Login required</h1>
+<button id="login-login">Login</button>
+<button id="login-signup">Signup</button>
+</section>
+
+<form id="user-signup-form">
   <h1>Sign up</h1>
   <input id="user-signup-name" placeholder="your user name"></input><br/>
   <input id="user-signup-email" type="email" placeholder="your email"></input><br/>
   <input id="user-signup-password" type="password" placeholder="your password"></input><br/>
   <input id="user-signup-password2" type="password" placeholder="confirm your password"></input><br/>
   <button id="user-signup-submit">Sign up</button><button id="user-signup-cancel">Cancel</button>
-</div>
+</form>
 
-<div id="user-login-form">
+<form id="user-login-form">
   <h1>Log in</h1>
-  <input id="user-login-name" placeholder="your user name"></input><br/>
+  <input id="user-login-name" placeholder="your user name" autofocus></input><br/>
   <input id="user-login-email" type="email" placeholder="your email"></input><br/>
   <input id="user-login-password" type="password" placeholder="your password"></input><br/>
   <button id="user-login-submit">Log in</button><button id="user-login-cancel">Cancel</button>
-</div>
+</form>
 
-<div id="shoplists">
+<form id="list-entry">
+  <h1>Create a new list</h1>
+  <input id="list-name" placeholder="name of the new list"autofocus></input><br/>
+  <textarea id="list-comments" placeholder="and your comments here"></textarea><br/>
+  <button id="list-add-list">Add <i class="fa fa-plus" style="color:green"></i> <button id="list-cancel">Cancel</i></button>
+</form>
+
+<section id="shoplists">
 <h1 id="shoplists-name">Shop Lists</h1>
 <button id="shoplists-add-list">&nbsp;&nbsp;&nbsp;<i class="fa fa-plus" style="color:green"></i>&nbsp;Create a new list</button>
 <div id="shoplists-lists"></div>
-</div>
+</section>
 
-<div id="list-entry">
-  <h1>Create a new list</h1>
-  <input id="list-name" placeholder="name of the new list"></input><br/>
-  <textarea id="list-comments" placeholder="and your comments here"></textarea><br/>
-  <button id="list-add-list">Add <i class="fa fa-plus" style="color:green"></i> <button id="list-cancel">Cancel</i></button>
-</div>
 
-<div id="item-entry">
+
+<form id="item-entry">
   <h1>Item to shop</h1>
-  <input id="item-name" placeholder="item to add"></input><br/>
+  <input id="item-name" placeholder="item to add" autofocus></input><br/>
   <input id="item-where" placeholder="where to buy it"></input><br/>
   <textarea id="item-notes" placeholder="add some notes"></textarea><br/>
   <button id="item-add-item"> Add <i class="fa fa-plus" style="color:green"> </i> <button id="item-cancel"> Cancel </i></button>
-</div>
+</form>
 
-<div id="shoplist">
+<section id="shoplist">
 <h1 id="shoplist-name">Shop List</h1>
 <button id="shoplist-add-item">&nbsp;&nbsp;&nbsp;<i class="fa fa-plus" style="color:green"></i>&nbsp;Add an item</button>
 <div id="shoplist-items"></div>
-</div>
+</section>
 
 </main>
 
@@ -73,5 +82,6 @@
 </body>
 
 <script src="vendor/jquery/dist/jquery.min.js"></script>
+<script src="jquery.observer.js"></script>
 <script src="client.js"></script>
 </html>

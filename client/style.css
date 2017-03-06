@@ -39,6 +39,7 @@ header nav span:hover, header nav i:hover  {
 
 main {
   max-width: 640px;
+  min-height: 600px;
   margin:24px auto;
 }
 
@@ -200,3 +201,10 @@ header #logo {
   height: 64px; 
   padding-right:24px 
 } 
+#debug {
+  padding:6px;
+  background-color:black;
+  font-size:80%;
+  font-family: "Andale Mono", "Consolas", "Courier New", "monospace";	  
+  color:#0f0;
+}

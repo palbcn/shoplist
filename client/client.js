@@ -7,113 +7,105 @@
 
 */
 
-// use jquery events (.on(),.trigger()) for an anonymous observer pattern ------
-// usage is $(".interested").observe("customevent",function(event,data){});
-// model triggers events $(document).trigger("customevent",eventdata);
-$.fn.observe = function(eventName, callback) {
-  return this.each(function(){
-    var el = this;
-    $(document).on(eventName, function(){
-        callback.apply(el, arguments);
-    })
-  });
-}
 
-// create an observable object for global client model  -----------------------
+// -----  shoplist client model
+  
+// create an observable object for global client model  --------------------------------------------------
 // make it observable by using setter functions and .trigger() to observers
 var clientmodel = {
-  // main state (currently three values: #login #lists #list##)
+  // main state (currently three values: #login #lists #list#)
   currentstate: null,
   get state() { return this.currentstate; },
   set state(l) { 
-    this.currentstate=l; 
-    location.hash=l; 
-    $(document).trigger("statechange",this.currentstate) 
+    this.currentstate=l;
+    $.trigger("statechange",this.currentstate)   // triggering the event we can manage controller state 
   },
   
-  currentuser: null,
+  currentuser: null,   // from login to lists we need a user
   get user() { return this.currentuser; },
   set user(u) { 
     this.currentuser=u; 
-    $(document).trigger("userchange",this.currentuser) 
+    $.trigger("userchange",this.currentuser);
+    if (!u) this.state="#login";
   },  
   
-  currentlist: null,
+  currentlist: null,   // from lists to list# we need a list
   get list() { return this.currentlist; },
   set list(l) { 
     this.currentlist=l; 
-    $(document).trigger("listchange",this.currentlist) 
+    $.trigger("listchange",this.currentlist) 
   }
+}
+
+// view Director -----------------------------------------------------------------------------
+// synchronizes the app state with the view displayed.
+function viewStateActions(){
+  $("main form").hide();       
+  $("main section").hide();
+  $(document).on("statechange",function(ev,loc){
+    $("body").attr('class', loc);    // setting the class of body, we can control styling in css
+    if (loc==="#lists") stateView="#shoplists";
+    else if (loc.slice(0,6)==="#list#") stateView="#shoplist";
+    else stateView="#login";
+    $('main form').hide("slow");  
+    $('main section:not('+stateView+')').hide("slow");  // hide everything that isn't
+    $('main '+stateView).show("slow");
+  });
 }
 
 //special case when location is changed by the user, we need to synchronize internally
 window.onhashchange = function(){
-  if(clientmodel.currentstate!==location.hash) clientmodel.currentstate=location.hash;    
+  if(clientmodel.state!==location.hash) clientmodel.state=location.hash;    
 };
 
-// view elements subscribe to model changes ------------------------------------
-$("#nav-user-name").observe("userchange",function(event,user){
-  if (user) {
-    $(this).html('<i class="fa fa-user fa-lg"></i>&nbsp; &nbsp;'+user.name);
-    $(this).show();
-  } else {
-    $(this).hide();
-  }
+
+// view subscribes to model changes ----------------------------------------------------------------
+$(document).observe("userchange",function(event,user){
+  if (user) 
+    $("#nav-user-name").html('<i class="fa fa-user fa-lg"></i>&nbsp; &nbsp;'+user.name);
+  else 
+    showLogin;
 });
 
-$("#nav-logout").observe("userchange",function(event,usr){
-  if (usr) $(this).show();
-  else $(this).hide();
+$(document).observe("userchange",function(event,usr){
+  if (usr) showShopLists();    
 });
 
-$("#nav-login, #nav-signup").observe("userchange",function(event,usr){
-  if (usr) $(this).hide();
-  else $(this).show();
-});
-
-$("#shoplists").observe("userchange",function(event,usr){
-  if (!usr) $(this).hide();
-  else showShopLists();    
-});
-
-$("#shoplists").observe("userchange",function(event,usr){
-  if (!usr) $(this).hide();
-  else showShopLists();    
-});
-
-$("#shoplist").observe("listchange",function(event,lst){
+$(document).observe("listchange",function(event,lst){
   showShopList(lst.id);
 });
 
-$("#shoplists").observe("statechange",function(event,loc){
-  if (loc==="#lists") $(this).show("slow"); 
-  else $(this).hide("slow");
-});
 
-$("#shoplist").observe("statechange",function(event,loc){
-  if (!loc.slice(0,6)==="#list#") $(this).hide("slow");
-});
-
-
-// ajax handlers -------------------------------------------------
-function say(s){
-  $("#debug").append($("<p/>").text(s));
+// view actions that produce state change -----------------------------------------------------------
+function showShopLists() {
+  clientmodel.state="#lists";
+  ajaxGetShoplists(renderShoplists);
 }
-function hhmmss(ts){
-  return new Date(ts).toTimeString().split(' ')[0];
+
+function showShopList(list) { 
+  clientmodel.state="#list#"+list;
+  ajaxGetShoplist(list,renderShoplist);
 }
-// Attach a function to be executed before an Ajax request is sent. // https://api.jquery.com/category/ajax/global-ajax-event-handlers/
-$(document).ajaxSend(function(e) {
-  //if (userloggedin) { }
-});
 
-$(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError ) {  say("ajaxError:"+JSON.stringify(jqXHR));
-  //if error 401 user is not logged in
-  if (jqXHR.status===401) ;
-});
+function showLogin() {
+  clientmodel.state="#login";
+}
 
-// ajax functions -------------------------------------------------
-function getShoplists(cb) {
+// view refresh without state change         -----------------------------------------------------
+function refreshShoplists() {
+  ajaxGetShoplists(renderShoplists);
+}
+
+function refreshShoplist(list) { 
+  ajaxGetShoplist(list,renderShoplist);
+}
+
+function refreshCurrentShoplist(){
+  ajaxGetShoplist(clientmodel.list.id,renderShoplist);
+}
+
+// ajax functions -----------------------------------------------------------------------------------
+function ajaxGetShoplists(cb) {
    $.ajax({
      dataType: "json",
      url: '/shoplist/lists',
@@ -121,11 +113,21 @@ function getShoplists(cb) {
    })
 }
 
-function listAdd(name,comments,cb) {
+function ajaxListAdd(name,comments,cb) {
   $.post( '/shoplist/lists', {name,comments}, cb);
 }
 
-function getShoplist(list,cb) {
+function ajaxListDelete(list,cb){
+  $.ajax({ 
+    type: "DELETE",
+    url:"/shoplist/lists",
+    dataType: "json",
+    data: { list_id:list},
+    success:cb
+  })
+}
+
+function ajaxGetShoplist(list,cb) {
    $.ajax({
      dataType: "json",
      url: '/shoplist/list/'+list,
@@ -133,11 +135,11 @@ function getShoplist(list,cb) {
    })
 }
 
-function itemAdd(list,name,where,comments,cb) {
+function ajaxItemAdd(list,name,where,comments,cb) {
   $.post( '/shoplist/list', {list_id:list,name,where,comments}, cb);
 }
 
-function itemComplete(list,item,cb){
+function ajaxItemComplete(list,item,cb){
   $.ajax({ 
     type: "PUT",
     url:"/shoplist/list",
@@ -147,7 +149,7 @@ function itemComplete(list,item,cb){
   })
 }
 
-function itemDelete(list,item,cb){
+function ajaxItemDelete(list,item,cb){
   $.ajax({ 
     type: "DELETE",
     url:"/shoplist/list/",
@@ -157,7 +159,7 @@ function itemDelete(list,item,cb){
   })
 }
 
-function signup(usr,email,pw,cb){
+function ajaxSignup(usr,email,pw,cb){
   $.ajax({ 
     type: "POST",
     url:"/signup",
@@ -167,7 +169,7 @@ function signup(usr,email,pw,cb){
   })
 }
 
-function login(usr,email,pw,cb){
+function ajaxLogin(usr,email,pw,cb){
   $.ajax({ 
     type: "POST",
     url:"/login",
@@ -177,7 +179,7 @@ function login(usr,email,pw,cb){
   })
 }
 
-function logout(cb){
+function ajaxLogout(cb){
   $.ajax({ 
     type: "GET",
     url:"/logout",
@@ -185,7 +187,7 @@ function logout(cb){
   })
 }
 
-function getLoggedin(cb) {
+function ajaxGetLoggedin(cb) {
    $.ajax({
      dataType: "json",
      url: '/loggedin',
@@ -208,12 +210,12 @@ function renderItem(item) {
 
   var $iconcomplete=$('<i title="Check as completed" class="fa fa-3x icon-complete"/>').hide() 
   $item.append($iconcomplete);
-  $iconcomplete.click(function(){itemComplete(clientmodel.list.id,item.id)},showShopList);
+  $iconcomplete.click(function(){itemComplete(clientmodel.list.id,item.id)},refreshCurrentShoplist);
   $item.hover(()=>$iconcomplete.show(),()=>$iconcomplete.hide());
   
   var $iconremove=$('<i title="Remove from list" class="fa fa-3x icon-remove"/>').hide() 
   $item.append($iconremove);
-  $iconremove.click(function(){itemDelete(clientmodel.list.id,item.id,showShopList)});
+  $iconremove.click(function(){itemDelete(clientmodel.list.id,item.id,refreshCurrentShoplist)});
   $item.hover(()=>$iconremove.show(),()=>$iconremove.hide());
   
   if (item.completed_at) {
@@ -233,7 +235,7 @@ function renderShoplist(list) {
   });
 }
 
-//-----------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 function renderListdesc(listdesc) {
   $listdesc = $('<div class="listdesc" id="list-'+listdesc.id+'"/>');
   $listdesc.append($('<p class="index">')
@@ -252,7 +254,7 @@ function renderListdesc(listdesc) {
   
   var $iconremove=$('<i title="Remove list" class="fa fa-3x icon-remove"/>').hide() 
   $listdesc.append($iconremove);
-  $iconremove.click(function(){  });
+  $iconremove.click(()=>listDelete(listdesc.id,refreshShoplists));
   $listdesc.hover(()=>$iconremove.show(),()=>$iconremove.hide());
 
   return $listdesc;
@@ -268,52 +270,34 @@ function renderShoplists(list) {
 }
 
 
-// wiew actions  ------------------------------------------
-function showShopLists() {
-  clientmodel.currentstate="#lists";
-  getShoplists(renderShoplists);
-}
-
-function showShopList(list) { 
-  clientmodel.currentstate="#list#"+list;
-  getShoplist(list,renderShoplist);
-}
-
-
-// user actions  ------------------------------------------
+// user actions  ----------------------------------------------------------------------------------
 function shopListActions() {
   $("#shoplist-add-item").on('click',()=>{
      $("#item-entry").show("slow");
   });
   $("#item-add-item").on('click',()=>{
-    itemAdd(clientmodel.list.id,$("#item-name").val(),$("#item-where").val(),$("#item-notes").val(),showShopList);
+    ajaxItemAdd(clientmodel.list.id,$("#item-name").val(),$("#item-where").val(),$("#item-notes").val(),refreshCurrentShoplist);
     $("#item-entry").hide("slow");
+    return false;
   });
   $("#item-cancel").on('click',()=>{
     $("#item-entry").hide("slow");
+    return false;
   });
-  $("#item-entry input").keyup(function(event){
-    if(event.keyCode===13){
-        $("#item-add-item").click();
-    }
-  });
-  
-  
+   
   $("#shoplists-add-list").on('click',()=>{
      $("#list-entry").show("slow");
+     return false;
   });
   $("#list-add-list").on('click',()=>{
-    listAdd($("#list-name").val(),$("#list-comments").val());
-    $("#list-entry").hide("slow");
+    ajaxListAdd($("#list-name").val(),$("#list-comments").val(),refreshShoplists);
+    return false;
   });
   $("#list-cancel").on('click',()=>{
     $("#list-entry").hide("slow");
+    return false;
   });
-  $("#list-entry input").keyup(function(event){
-    if(event.keyCode===13){
-        $("#list-add-list").click();
-    }
-  });
+
   
 }
 
@@ -322,14 +306,16 @@ function userManagementActions() {
     $("#user-info-form").show("slow");
   });
   $("#nav-logout").on('click',()=> {
-    logout(function(){ clientmodel.user=null; });
+    ajaxLogout(function(){ 
+      clientmodel.user=null; 
+    });
   });  
-  $("#nav-signup").on('click',()=> {
+  $("#nav-signup, #login-signup").on('click',()=> {
     $("#user-signup-form input").val('');
     $("#user-signup-password, #user-signup-password2").removeClass('error');  
     $("#user-signup-form").show("slow");
   });
-  $("#nav-login").on('click',()=> {
+  $("#nav-login, #login-login").on('click',()=> {
     $("#user-login-form input").val('');
     $("#user-login-form").show("slow");
   });
@@ -338,16 +324,18 @@ function userManagementActions() {
     var pw1=$("#user-signup-password").val();
     var pw2=$("#user-signup-password2").val();
     if (pw1===pw2) {
-      signup($("#user-signup-name").val(),$("#user-signup-email").val(),pw1,function(r) {
+      ajaxSignup($("#user-signup-name").val(),$("#user-signup-email").val(),pw1,function(r) {
         clientmodel.user=r;
       });
       $("#user-signup-form").hide("slow");
     } else {   
       $("#user-signup-password, #user-signup-password2").addClass('error');    
     }
+    return false;
   }); 
   $("#user-signup-cancel").on('click',()=>{
     $("#user-signup-form").hide("slow");
+    return false;
   });
   $("#user-signup-form input").keyup(function(event){
     if(event.keyCode===13){
@@ -359,26 +347,32 @@ function userManagementActions() {
     var name=$("#user-login-name").val();
     var email=$("#user-login-email").val();
     var password=$("#user-login-password").val();
-    login(name,email,password,function(r) {
+    ajaxLogin(name,email,password,function(r) {
       clientmodel.user=r;
     });
     $("#user-login-form").hide("slow");
+    return false;
   });
   $("#user-login-cancel").on('click',()=>{
     $("#user-login-form").hide("slow");
+    return false;
   });
   $("#user-login-form input").keyup(function(event){
     if(event.keyCode===13){
         $("#user-login-submit").click();
+        return false;
     }
   });
 }
+
  
-// kickoff  ------------------------------------------
+// kickoff  --------------------------------------------------------------------------------------
 $(function(){
+  viewStateActions();
   userManagementActions();
   shopListActions();
-  getLoggedin(function(usr) { 
+  ajaxGetLoggedin(function(usr) { 
     clientmodel.user=usr; 
   });
+  
 });
