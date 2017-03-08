@@ -12,30 +12,31 @@
   
 // create an observable object for global client model  --------------------------------------------------
 // make it observable by using setter functions and .trigger() to observers
-var clientmodel = {
+var clientmodel = (function() {
   // main state (currently three values: #login #lists #list#)
-  currentstate: null,
-  get state() { return this.currentstate; },
-  set state(l) { 
-    this.currentstate=l;
-    $.trigger("statechange",this.currentstate)   // triggering the event we can manage controller state 
-  },
+  var currentstate = null;
+  var currentuser = null;   // from login to lists we need a user
+  var currentlist = null;   // from lists to list# we need a list
   
-  currentuser: null,   // from login to lists we need a user
-  get user() { return this.currentuser; },
-  set user(u) { 
-    this.currentuser=u; 
-    $.trigger("userchange",this.currentuser);
-    if (!u) this.state="#login";
-  },  
-  
-  currentlist: null,   // from lists to list# we need a list
-  get list() { return this.currentlist; },
-  set list(l) { 
-    this.currentlist=l; 
-    $.trigger("listchange",this.currentlist) 
+  return {
+    get state() { return currentstate; },
+    set state(l) { 
+      currentstate=l;
+      $.trigger("statechange",currentstate) // triggering the event we can manage controller state 
+    },
+    get user() { return currentuser; },
+    set user(u) { 
+      currentuser=u; 
+      $.trigger("userchange",currentuser);
+      if (!u) this.state="#login";
+    },  
+    get list() { return currentlist; },
+    set list(l) { 
+      currentlist=l; 
+      $.trigger("listchange",currentlist) 
+    }
   }
-}
+})();
 
 // view Director -----------------------------------------------------------------------------
 // synchronizes the app state with the view displayed.
