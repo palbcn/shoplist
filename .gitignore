@@ -1,6 +1,7 @@
 data
 node_modules
-vendor
+client/vendor
+client/other
 client/tests
 tests
 scratch
