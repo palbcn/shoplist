@@ -90,22 +90,20 @@ function sendListPrim(listid,res) {
 }
 
 function checklistuser(listid,userid,cb) {
-  console.log('listuser',listid,userid);
   db.get('SELECT * FROM listusers WHERE user_id=? AND list_id=?',[userid,listid],function(err, row) {
-    console.log(err,row);
     if (err||!row) return cb(401);
     cb(null);
   });
 }
 
-router.get('/list/:id', function (req, res, next) {
+router.get('/items/:id', function (req, res, next) {
   checklistuser(req.params.id,req.session.user.id,function(err){
     if (err) return res.sendStatus(401);
     sendListPrim(req.params.id,res);
   });
 });
   
-router.post('/list', function (req, res,next) {
+router.post('/items', function (req, res,next) {
   checklistuser(req.body.list_id,req.session.user.id,function(err){
     if (err) return res.sendStatus(401);
     db.run('INSERT INTO shopitems (list_id,name,comments) VALUES (?,?,?)',
@@ -116,7 +114,7 @@ router.post('/list', function (req, res,next) {
   })
 });
 
-router.delete('/list',function(req,res,next) {
+router.delete('/items',function(req,res,next) {
   checklistuser(req.body.list_id,req.session.user.id,function(err){
     if (err) return res.sendStatus(401);
     db.run("DELETE FROM shopitems WHERE list_id=? AND id=?",[req.body.list_id,req.body.item_id], function(err) {
@@ -126,7 +124,7 @@ router.delete('/list',function(req,res,next) {
   });
 });
 
-router.put('/list',function(req,res,next) {
+router.put('/items',function(req,res,next) {
   checklistuser(req.body.list_id,req.session.user.id,function(err){
     if (err) return res.sendStatus(401);
     db.run("UPDATE shopitems SET completed_at=? WHERE list_id=? AND id=?",[Date.now(),req.body.list_id,req.body.item_id], function(err) {

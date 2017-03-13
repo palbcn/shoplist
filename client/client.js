@@ -13,10 +13,10 @@
 // create an observable object for global client model  --------------------------------------------------
 // make it observable by using setter functions and .trigger() to observers
 var clientmodel = (function() {
-  // main state (currently three values: #login #lists #list#)
+  // main state (currently three values: #login #alllists #list#)
   var currentstate = null;
-  var currentuser = null;   // from login to lists we need a user
-  var currentlist = null;   // from lists to list# we need a list
+  var currentuser = null;   // from login to alllists we need a user
+  var currentlist = null;   // from alllists to list# we need a list
   
   return {
     get state() { return currentstate; },
@@ -41,13 +41,19 @@ var clientmodel = (function() {
 // view Director -----------------------------------------------------------------------------
 // synchronizes the app state with the view displayed.
 function viewStateActions(){
+  
   $("main form").hide();       
   $("main section").hide();
   $(document).on("statechange",function(ev,loc){
-    $("body").attr('class', loc);    // setting the class of body, we can control styling in css
-    if (loc==="#lists") stateView="#shoplists";
+    var stateView="#none";    
+    if (loc==="#alllists") stateView="#alllists";
     else if (loc.slice(0,6)==="#list#") stateView="#shoplist";
     else stateView="#login";
+    
+    console.log("statechange",loc,stateView);
+    
+    $("body").attr('class', stateView);    // setting the class of body, we can control styling in css
+    
     $('main form').hide("slow");  
     $('main section:not('+stateView+')').hide("slow");  // hide everything that isn't
     $('main '+stateView).show("slow");
@@ -69,7 +75,7 @@ $(document).observe("userchange",function(event,user){
 });
 
 $(document).observe("userchange",function(event,usr){
-  if (usr) showShopLists();    
+  if (usr) showAllLists();    
 });
 
 $(document).observe("listchange",function(event,lst){
@@ -78,9 +84,9 @@ $(document).observe("listchange",function(event,lst){
 
 
 // view actions that produce state change -----------------------------------------------------------
-function showShopLists() {
-  clientmodel.state="#lists";
-  ajaxGetShoplists(renderShoplists);
+function showAllLists() {
+  clientmodel.state="#alllists";
+  ajaxGetAllLists(renderAllLists);
 }
 
 function showShopList(list) { 
@@ -93,8 +99,9 @@ function showLogin() {
 }
 
 // view refresh without state change         -----------------------------------------------------
-function refreshShoplists() {
-  ajaxGetShoplists(renderShoplists);
+function refreshAllLists() {
+  console.log('refreshAllLists')
+  ajaxGetAllLists(renderAllLists);
 }
 
 function refreshShoplist(list) { 
@@ -106,7 +113,37 @@ function refreshCurrentShoplist(){
 }
 
 // ajax functions -----------------------------------------------------------------------------------
-function ajaxGetShoplists(cb) {
+
+// generic error handler
+$(document).ajaxError( function(e, x, settings, exception) {
+  var message;
+  var statusErrorMap = {
+    '400' : "Server understood the request, but request content was invalid.",
+    '401' : "Unauthorized access.",
+    '403' : "Forbidden resource can't be accessed.",
+    '409' : "Request is in conflict with resource state.",
+    '500' : "Internal server error.",
+    '503' : "Service unavailable."
+  };
+  if (x.status) {
+    message =statusErrorMap[x.status];
+    if(!message){
+      message="Unknown Error \n.";
+    }
+  }else if(exception=='parsererror'){
+      message="Parsing JSON Request failed.";
+  }else if(exception=='timeout'){
+      message="Request Time out.";
+  }else if(exception=='abort'){
+      message="Request was aborted by the server";
+  }else {
+      message="Unknown Error.";
+  }
+  topalert("","caution",message+' '+settings.type+' '+settings.url,"OK");
+
+});
+
+function ajaxGetAllLists(cb) {
    $.ajax({
      dataType: "json",
      url: '/shoplist/lists',
@@ -131,19 +168,19 @@ function ajaxListDelete(list,cb){
 function ajaxGetShoplist(list,cb) {
    $.ajax({
      dataType: "json",
-     url: '/shoplist/list/'+list,
+     url: '/shoplist/items/'+list,
      success: cb
    })
 }
 
 function ajaxItemAdd(list,name,where,comments,cb) {
-  $.post( '/shoplist/list', {list_id:list,name,where,comments}, cb);
+  $.post( '/shoplist/items', {list_id:list,name,where,comments}, cb);
 }
 
 function ajaxItemComplete(list,item,cb){
   $.ajax({ 
     type: "PUT",
-    url:"/shoplist/list",
+    url:"/shoplist/items",
     data: { list_id:list, item_id: item},
     dataType: "json",
     success:cb
@@ -153,7 +190,7 @@ function ajaxItemComplete(list,item,cb){
 function ajaxItemDelete(list,item,cb){
   $.ajax({ 
     type: "DELETE",
-    url:"/shoplist/list/",
+    url:"/shoplist/items",
     dataType: "json",
     data: { list_id:list, item_id: item},
     success:cb
@@ -192,6 +229,7 @@ function ajaxGetLoggedin(cb) {
    $.ajax({
      dataType: "json",
      url: '/loggedin',
+     error: err=>cb(null),
      success: cb
    })
 }
@@ -211,12 +249,12 @@ function renderItem(item) {
 
   var $iconcomplete=$('<i title="Check as completed" class="fa fa-3x icon-complete"/>').hide() 
   $item.append($iconcomplete);
-  $iconcomplete.click(function(){itemComplete(clientmodel.list.id,item.id)},refreshCurrentShoplist);
+  $iconcomplete.click(function(){ajaxItemComplete(clientmodel.list.id,item.id,refreshCurrentShoplist)});
   $item.hover(()=>$iconcomplete.show(),()=>$iconcomplete.hide());
   
   var $iconremove=$('<i title="Remove from list" class="fa fa-3x icon-remove"/>').hide() 
   $item.append($iconremove);
-  $iconremove.click(function(){itemDelete(clientmodel.list.id,item.id,refreshCurrentShoplist)});
+  $iconremove.click(function(){ajaxItemDelete(clientmodel.list.id,item.id,refreshCurrentShoplist)});
   $item.hover(()=>$iconremove.show(),()=>$iconremove.hide());
   
   if (item.completed_at) {
@@ -255,24 +293,27 @@ function renderListdesc(listdesc) {
   
   var $iconremove=$('<i title="Remove list" class="fa fa-3x icon-remove"/>').hide() 
   $listdesc.append($iconremove);
-  $iconremove.click(()=>listDelete(listdesc.id,refreshShoplists));
+  $iconremove.click(()=>ajaxListDelete(listdesc.id,refreshAllLists));
   $listdesc.hover(()=>$iconremove.show(),()=>$iconremove.hide());
 
   return $listdesc;
 }
 
-function renderShoplists(list) {
-  $("#shoplists").show("slow");
-  $("#shoplists-name").text("Shop lists of "+clientmodel.user.name);
-  $("#shoplists-lists").empty();
+function renderAllLists(list) {
+  $("#alllists").show("slow");
+  $("#alllists-name").text("Shop lists of "+clientmodel.user.name);
+  $("#alllists-lists").empty();
   list.map( (desc) => {
-    $("#shoplists-lists").append(renderListdesc(desc));
+    $("#alllists-lists").append(renderListdesc(desc));
   });
 }
 
 
 // user actions  ----------------------------------------------------------------------------------
 function shopListActions() {
+  $("#shoplist-cancel").on('click',()=>{
+    clientmodel.state="#alllists";  
+  });
   $("#shoplist-add-item").on('click',()=>{
      $("#item-entry").show("slow");
   });
@@ -286,12 +327,12 @@ function shopListActions() {
     return false;
   });
    
-  $("#shoplists-add-list").on('click',()=>{
+  $("#alllists-add-list").on('click',()=>{
      $("#list-entry").show("slow");
      return false;
   });
   $("#list-add-list").on('click',()=>{
-    ajaxListAdd($("#list-name").val(),$("#list-comments").val(),refreshShoplists);
+    ajaxListAdd($("#list-name").val(),$("#list-comments").val(),refreshAllLists);
     return false;
   });
   $("#list-cancel").on('click',()=>{
@@ -372,8 +413,15 @@ $(function(){
   viewStateActions();
   userManagementActions();
   shopListActions();
-  ajaxGetLoggedin(function(usr) { 
+  ajaxGetLoggedin(function(usr) {
     clientmodel.user=usr; 
   });
+  
+  if ($.cookie("accept-cookies")!=1) 
+    topalert("cookies","warning",
+      'This site might be using <a href="http://en.wikipedia.org/wiki/HTTP_cookie">cookies</a>, either own or third-party. You accept them, right?',
+      'OK, understood.',function(){ 
+        $.cookie("accept-cookies", 1);
+    });
   
 });

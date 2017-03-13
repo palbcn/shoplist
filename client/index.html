@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>The Shopping List</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="topalert.css">
 <link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
 </head>
 
@@ -54,12 +55,12 @@
   <button id="list-add-list">Add <i class="fa fa-plus" style="color:green"></i> <button id="list-cancel">Cancel</i></button>
 </form>
 
-<section id="shoplists">
-<h1 id="shoplists-name">Shop Lists</h1>
-<button id="shoplists-add-list">&nbsp;&nbsp;&nbsp;<i class="fa fa-plus" style="color:green"></i>&nbsp;Create a new list</button>
-<div id="shoplists-lists"></div>
+<section id="alllists">
+<h1><span id="alllists-name">Shop Lists</span> 
+<span class="action" id="alllists-add-list"><i class="fa fa-plus" style="color:green"></i></span>
+</h1>
+<div id="alllists-lists"></div>
 </section>
-
 
 
 <form id="item-entry">
@@ -71,8 +72,10 @@
 </form>
 
 <section id="shoplist">
-<h1 id="shoplist-name">Shop List</h1>
-<button id="shoplist-add-item">&nbsp;&nbsp;&nbsp;<i class="fa fa-plus" style="color:green"></i>&nbsp;Add an item</button>
+<h1 ><span id="shoplist-name">Shop List</span>
+<span class="action" id="shoplist-cancel"><i class="fa fa-arrow-left" style="color:red"></i></span>
+<span class="action" id="shoplist-add-item"><i class="fa fa-plus" style="color:green"></i></span>
+</h1>
 <div id="shoplist-items"></div>
 </section>
 
@@ -82,6 +85,8 @@
 </body>
 
 <script src="vendor/jquery/dist/jquery.min.js"></script>
+<script src="vendor/jquery.cookie/jquery.cookie.js"></script>
 <script src="jquery.observer.js"></script>
+<script src="topalert.js"></script> 
 <script src="client.js"></script>
 </html>

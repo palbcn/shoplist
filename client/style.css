@@ -20,6 +20,7 @@ body{
 img { border:0; }
 
 header {
+  position:relative;
   background: black;
   color: #ccc;
   min-height: 120px;
@@ -45,7 +46,7 @@ main {
 
 label,input,textarea,button {
   font-family: "Segoe UI","Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 24px;
+  font-size: 20px;
 }
 
 input, textarea {
@@ -55,6 +56,7 @@ input, textarea {
 
 button { 
   padding: 0 12px; 
+  margin: 12px;
 }
 
 input {
@@ -69,15 +71,31 @@ input.error {
   background-color:#fee;  
 }
 
-button { 
-  margin: 12px;
-};
+/*-----------------------------------------------------*/
+main h1 {
+  font-size:32px;
+  margin-bottom:24px;
+}
+.action {
+  border-radius: 50%;
+  display: inline-block;
+  width: 36px;  height: 36px;
+  padding: 2px;
+  text-align: center;
+  background-color: #eee;
+}
+.action:hover {
+  background-color: #ccc;
+}
+
+
+/*-----------------------------------------------------*/
 
 .item-list {
   width: 400px;
 }
 
-.item, .listdesc {
+.item {
   position:relative;
   width:100%;
   height: 64px;
@@ -90,17 +108,40 @@ button {
   text-decoration: line-through;
 }
 
-.item:hover, .listdesc:hover {
+.item:hover {
   background-color: #eee;
 }
 
-.item .timestamp, .listdesc .timestamp {
+
+.listdesc {
+   position:relative;
+   display:inline-block;
+   width: 240px;           
+   height: 120px;
+   font-size:1em; 
+   margin-right: 12px;
+   margin-bottom: 12px;
+   border-top: 1px solid #ccc;
+   vertical-align: top;
+   padding-top: 6px;
+   overflow: hidden;
+   z-index:0;
+   padding-left: 100px;
+  }
+  
+    
+.listdesc:hover { 
+  background-color: #efe;
+}
+
+
+.item .timestamp {
   font-size:60%;
   position:absolute;
   right: 0;
 }
 
-.item .timestamp.added, .listdesc .timestamp.created {
+.item .timestamp.added {
   top:6px;
 }
 
@@ -108,12 +149,12 @@ button {
   top:18px;
 }
 
-.item .index, .listdesc .index {
+.item .index {
   position: absolute;
   right: 0px;
   top: 0;
 }
-.item .element, .listdesc .name {
+.item .element {
   font-size: 2rem;
 }
 .item .comments {
@@ -122,7 +163,7 @@ button {
 }
 
 /*-----------------------------------------------------*/
-.item .icon-complete, .item .icon-remove, .listdesc .icon-select, .listdesc .icon-remove {
+.item .icon-complete, .item .icon-remove {
    position:absolute; 
    color: #999; 
    padding:6px;
