@@ -127,17 +127,20 @@ router.delete('/items',function(req,res,next) {
 router.put('/items',function(req,res,next) {
   checklistuser(req.body.list_id,req.session.user.id,function(err){
     if (err) return res.sendStatus(401);
-    db.run("UPDATE shopitems SET completed_at=DATE('now') WHERE list_id=? AND id=?",
+    db.run(`UPDATE shopitems 
+              SET completed_at=CASE 
+                WHEN completed_at IS NULL 
+                  THEN DATETIME('now') 
+                  ELSE NULL 
+                END
+              WHERE list_id=? AND id=?`,
       [req.body.list_id,req.body.item_id], function(err) {
-      if(err) return next(err);
-      sendListPrim(req.body.list_id,res);
-    });
+        if(err) return next(err);
+        sendListPrim(req.body.list_id,res);
+      });
   });
 });
 
-/* TO DO --- `UPDATE shopitems 
-      SET completed_at=CASE WHEN completed_at=NULL THEN DATE('now') ELSE NULL END 
-      WHERE list_id=? AND id=?`*/
 /******************************************************************************/
 // Database initialization  
 function initdb(db) {
