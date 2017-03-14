@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "preinstall": "mkdir data",
-    "postinstall": "cd client && ./node_modules/.bin/bower install && cd ..",
+    "postinstall": "cd client && bower install && cd ..",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server"
   },

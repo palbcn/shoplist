@@ -13,6 +13,7 @@ var app = express();
 var morgan = require('morgan'); 
 var bodyParser = require('body-parser'); 
 var session = require('express-session'); 
+var helmet = require('helmet');
 var passwords = require('./passwords');
 
 // DB middleware ----------------------------------------------
@@ -21,6 +22,9 @@ var db = new sqlite3.Database('./data/shoplist.db');
 
 // logger middleware ----------------------------------------------
 app.use(morgan('dev'));
+
+// simple securization middleware ---------------------------------
+app.use(helmet());
 
 // static middleware   ---------------------------------------------
 app.use(express.static(path.join(__dirname,'client')));
