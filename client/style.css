@@ -112,29 +112,6 @@ main h1 {
   background-color: #eee;
 }
 
-
-.listdesc {
-   position:relative;
-   display:inline-block;
-   width: 240px;           
-   height: 120px;
-   font-size:1em; 
-   margin-right: 12px;
-   margin-bottom: 12px;
-   border-top: 1px solid #ccc;
-   vertical-align: top;
-   padding-top: 6px;
-   overflow: hidden;
-   z-index:0;
-   padding-left: 100px;
-  }
-  
-    
-.listdesc:hover { 
-  background-color: #efe;
-}
-
-
 .item .timestamp {
   font-size:60%;
   position:absolute;
@@ -179,21 +156,58 @@ main h1 {
   right:0px;
   top:0px;
 }
-.icon-remove:before {
+.item .icon-remove:before {
   /* fa-trash \f1f8 or fa-ban \f05e or fa-times \f00d or ... ??? */
   content: "\f00d";
 }
 /*-----------------------------------------------------*/
 .item .icon-complete:hover {
-   color: green;         
+  color: green;        
 }
 .item .icon-complete {
-  right:48px;
+  left:0px;
   top:0px;
 }
-.icon-complete:before {
+.item .icon-complete:before {
   /* fa-check \f00c or ... ??? */
   content: "\f00c";
+}
+
+/*-----------------------------------------------------*/
+.listdesc {
+   position:relative;
+   display:inline-block;
+   width: 240px;           
+   height: 120px;
+   font-size:1em; 
+   margin-right: 12px;
+   margin-bottom: 12px;
+   border-top: 1px solid #ccc;
+   vertical-align: top;
+   padding: 6px;
+   overflow: hidden;
+   z-index:0;
+}
+  
+.listdesc:hover { 
+  background-color: #efe;
+}
+
+.listdesc .index {
+  font-size: 80%;
+  color:#666;  
+}
+
+.listdesc .timestamp {
+  font-size:80%; padding-left:12px;
+}
+
+.listdesc .name {
+  font-size: 160%;  
+}
+
+.listdesc .comments {
+  color: #666;
 }
 
 /*-----------------------------------------------------*/
@@ -201,21 +215,29 @@ main h1 {
    color: green;         
 }
 .listdesc .icon-select {
-  right:48px;
-  top:0px;
+  position:absolute;
+  right: 0;
+  bottom:0;  
 }
-.icon-select:before {
+.listdesc .icon-select:before {
   /* fa-arrow-right \f061 or ... ??? */
   content: "\f061";
 }
 
 /*-----------------------------------------------------*/
+.listdesc .icon-remove {
+  position:absolute;
+  top: 0;
+  right:0;  
+}
+
 .listdesc .icon-remove:hover {
    color: red;         
 }
-.listdesc .icon-remove {
-  right:0px;
-  top:0px;
+
+.listdesc .icon-remove:before {
+  /* fa-trash \f1f8 or fa-ban \f05e or fa-times \f00d or ... ??? */
+  content: "\f00d";
 }
 
 

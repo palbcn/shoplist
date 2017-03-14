@@ -237,6 +237,7 @@ function ajaxGetLoggedin(cb) {
 
 // view render functions ------------------------------------------
 function renderItem(item) {
+  console.log(item);
   $item = $('<div class="item" id="item-'+item.id+'"/>');
   $item.append($('<p class="index">')
     .text(item.id));
@@ -276,11 +277,16 @@ function renderShoplist(list) {
 
 //-------------------------------------------------------------------------------------------------
 function renderListdesc(listdesc) {
-  $listdesc = $('<div class="listdesc" id="list-'+listdesc.id+'"/>');
-  $listdesc.append($('<p class="index">')
+  console.log(listdesc);
+  var $listdesc = $('<div class="listdesc" id="list-'+listdesc.id+'"/>');
+  
+  var $p = $('<p>');
+  $p.append($('<span class="index">')
     .text(listdesc.id));
-  $listdesc.append($('<p class="timestamp created">')
-    .text(new Date(listdesc.created_at).toLocaleString('en-GB').slice(0,-3)));          
+  $p.append($('<span class="timestamp created">')
+    .text((new Date(listdesc.created_at)).toLocaleString('en-GB').slice(0,-3)));
+  $listdesc.append($p);
+
   $listdesc.append($('<p class="name">')
     .text(listdesc.name));
   $listdesc.append($('<p class="comments">')
@@ -379,11 +385,7 @@ function userManagementActions() {
     $("#user-signup-form").hide("slow");
     return false;
   });
-  $("#user-signup-form input").keyup(function(event){
-    if(event.keyCode===13){
-        $("#user-signup-submit").click();
-    }
-  });
+
   
   $("#user-login-submit").on('click',()=>{
     var name=$("#user-login-name").val();
@@ -399,12 +401,7 @@ function userManagementActions() {
     $("#user-login-form").hide("slow");
     return false;
   });
-  $("#user-login-form input").keyup(function(event){
-    if(event.keyCode===13){
-        $("#user-login-submit").click();
-        return false;
-    }
-  });
+
 }
 
  
